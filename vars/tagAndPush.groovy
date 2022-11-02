@@ -6,27 +6,27 @@ def call(Map config = [:]) {
     
     script {
         env.MAJOR = sh (
-                script: 'echo "${config.version}" | sed -r \'s/^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*).*/\\1/\'',
+                script: "echo ${config.version} | sed -r 's/^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*).*/\\1/'",
                 returnStdout: true
         ).trim()
     }
-    sh 'docker image push ${config.nexusRepository}/${config.registryPath}:${MAJOR}'
+    sh "docker image push ${config.nexusRepository}/${config.registryPath}:${MAJOR}"
 
     script {
         env.MINOR = sh (
-                script: 'echo "${config.version}" | sed -r \'s/^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*).*/\\1\\.\\2/\'',
+                script: "echo ${config.version} | sed -r 's/^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*).*/\\1\\.\\2/'",
                 returnStdout: true
         ).trim()
     }
-    sh 'docker image push ${config.nexusRepository}/${config.registryPath}:${MINOR}'
+    sh "docker image push ${config.nexusRepository}/${config.registryPath}:${MINOR}"
 
     script {
         env.PATCH = sh (
-                script: 'echo "${config.version}" | sed -r \'s/^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*).*/\\1\\.\\2\\.\\3/\'',
+                script: "echo ${config.version} | sed -r 's/^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*).*/\\1\\.\\2\\.\\3/'",
                 returnStdout: true
         ).trim()
     }
-    sh 'docker image push ${config.nexusRepository}/${config.registryPath}:${PATCH}'
+    sh "docker image push ${config.nexusRepository}/${config.registryPath}:${PATCH}"
 
-    sh 'docker image push ${config.nexusRepository}/${config.registryPath}:latest'
+    sh "docker image push ${config.nexusRepository}/${config.registryPath}:latest"
 }
