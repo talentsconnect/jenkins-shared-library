@@ -6,8 +6,8 @@ def call(Map config = [:]) {
     sh "echo Repo: ${config.nexusRepository}"
     sh "echo Path: ${config.registryPath}"
 
-    sh "docker build -t ${config.nexusRepository}/${config.registryPath}:${config.version} " +
-            "${config.nexusRepository}/${config.registryPath}:${config.majorTag} " +
-            "${config.nexusRepository}/${config.registryPath}:${config.majorMinorTag} " +
-            "${config.nexusRepository}/${config.registryPath}:latest ."
+    sh "docker build -t ${config.nexusRepository}/${config.registryPath}:${config.majorTag} ."
+    sh "docker build -t ${config.nexusRepository}/${config.registryPath}:${config.majorMinorTag} ."
+    sh "docker build -t ${config.nexusRepository}/${config.registryPath}:${config.version} ."
+    sh "docker build -t ${config.nexusRepository}/${config.registryPath}:latest ."
 }
