@@ -1,10 +1,4 @@
 def call(Map config = [:]) {
-    
-    sh "echo Version: ${config.version}"
-    sh "echo MajorTag: ${config.majorTag}"
-    sh "echo MajorMinorTag: ${config.majorMinorTag}"
-    sh "echo Repo: ${config.nexusRepository}"
-    sh "echo Path: ${config.registryPath}"
 
     script {
         env.CURRENT_TIME = sh(returnStdout: true, script: 'date -u +%Y-%m-%dT%H:%M:%SZ').trim()
