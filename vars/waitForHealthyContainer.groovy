@@ -3,8 +3,8 @@ def call(Map config = [:]) {
     script {
         sh '''
             echo waitForHealthyContainer invoked
-            echo \$config
-            echo \$config.refId
+            echo \${config}
+            echo \${config.refId}
             REXP=jobshop_test_stack_$config.refId_$config.serviceName
             echo waitForHealthyContainer expression = $REXP
             containerId = docker ps | awk "/$REXP/"'{print $1}'
