@@ -2,8 +2,9 @@ def call(Map config = [:]) {
 
     script {
         sh '''
-            echo here
+            echo waitForHealthyContainer invoked
             REXP=jobshop_test_stack_${config.refId}_${config.serviceName}
+            echo waitForHealthyContainer expression defined
             containerId = docker ps | awk "/$REXP/"'{print $1}'
             containerState = docker inspect -f {{.State.Health.Status}} $containerId
             i=0
