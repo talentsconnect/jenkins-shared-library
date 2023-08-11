@@ -4,8 +4,9 @@ def call(Map config = [:]) {
         sh '''
             echo waitForHealthyContainer invoked
             REXP=jobshop_test_stack_$config.refId_$config.serviceName
-            echo waitForHealthyContainer expression defined
+            echo waitForHealthyContainer expression = $REXP
             containerId = docker ps | awk "/$REXP/"'{print $1}'
+            echo waitForHealthyContainer containerId = $containerId
             containerState = docker inspect -f {{.State.Health.Status}} $containerId
             i=0
             while [$x -lt $config.retries] || [ $containerState -ne "healthy" ]; 
