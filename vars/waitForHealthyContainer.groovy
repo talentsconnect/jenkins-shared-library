@@ -1,7 +1,7 @@
 def call(Map config = [:]) {
 
     script {
-        env.refId = sh(returnStdout: true, script: 'echo $config.refId').trim()
+        env.refId = sh(returnStdout: true, script: "echo $config.refId").trim()
         sh '''
             echo waitForHealthyContainer invoked
             echo \${config}
