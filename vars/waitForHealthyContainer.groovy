@@ -15,7 +15,7 @@ def call(Map config = [:]) {
     }
 
     return sh (
-            script: "if [[ $containerStatue -eq \"healthy\" ]]; then echo 0; else echo 1; fi",
+            script: "$containerState",
             returnStdout: true
     ).trim()
 }
