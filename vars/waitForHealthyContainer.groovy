@@ -20,9 +20,13 @@ def call(Map config = [:]) {
                     script: "docker inspect --format='{{.State.Health.Status}}' ${container_id}"
             ).trim()
 
+            sh(script: "echo ${healthStatus}")
+
             if (healthStatus == "healthy") {
                 break
             }
+
+            sh(script: "echo ${timeout}")
 
             sleep ${timeout}.toInteger()
         }
