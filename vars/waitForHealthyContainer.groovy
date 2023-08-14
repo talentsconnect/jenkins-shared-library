@@ -3,16 +3,16 @@ def call(Map config = [:]) {
     script {
         env.refId = sh(returnStdout: true, script: "echo $config.refId").trim()
         env.serviceName = sh(returnStdout: true, script: "echo $config.serviceName").trim()
+        env.retries = sh(returnStdout: true, script: "echo $config.retries").trim()
+        env.timeout = sh(returnStdout: true, script: "echo $config.timeout").trim()
+
 
         env.container_id = sh(
                 returnStdout: true,
                 script: "docker ps|awk '/jobshop_test_stack_${refId}_${serviceName}/{print \$1}'"
         ).trim()
 
-        def retries = sh(returnStdout: true, script: "echo ${retries}").trim()
-        def timeout = sh(returnStdout: true, script: "echo ${timeout}").trim()
-
-        for (int i = 0; i < retries.toInteger(); i++) {
+        for (int i = 0; i < env.retries.toInteger(); i++) {
             sh(script: "echo loop started")
             healthStatus = sh(
                     returnStdout: true,
@@ -25,7 +25,7 @@ def call(Map config = [:]) {
                 break
             }
 
-            sleep timeout.toInteger()
+            sleep env.timeout.toInteger()
         }
     }
 
