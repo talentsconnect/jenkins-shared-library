@@ -3,20 +3,14 @@ def call(Map config = [:]) {
     script {
         env.refId = sh(returnStdout: true, script: "echo $config.refId").trim()
         env.serviceName = sh(returnStdout: true, script: "echo $config.serviceName").trim()
-        env.retries = sh(returnStdout: true, script: "echo $config.retries").trim()
-        env.timeout = sh(returnStdout: true, script: "echo $config.timeout").trim()
-
 
         env.container_id = sh(
                 returnStdout: true,
                 script: "docker ps|awk '/jobshop_test_stack_${refId}_${serviceName}/{print \$1}'"
         ).trim()
 
-        sh(script: "echo ${container_id}")
-        sh(script: "echo ${retries}")
-
-        def retries = ${retries}
-        def timeout = ${timeout}
+        def retries = sh(script: "echo ${retries}")
+        def timeout = sh(script: "echo ${timeout}")
 
         for (int i = 0; i < retries.toInteger(); i++) {
             sh(script: "echo loop started")
