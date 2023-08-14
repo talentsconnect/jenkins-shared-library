@@ -2,26 +2,32 @@ def call(Map config = [:]) {
 
     script {
         env.refId = sh(returnStdout: true, script: "echo $config.refId").trim()
-        sh '''
-            echo waitForHealthyContainer invoked
-            echo \${config}
-            echo \${config.refId}
-            REXP=jobshop_test_stack_$config.refId_$config.serviceName
-            echo waitForHealthyContainer expression = $REXP
-            containerId = docker ps | awk "/$REXP/"'{print $1}'
-            echo waitForHealthyContainer containerId = $containerId
-            containerState = docker inspect -f {{.State.Health.Status}} $containerId
-            i=0
-            while [$x -lt $config.retries] || [ $containerState -ne "healthy" ]; 
-            do     
-                ((i++))
-                sleep $config.timeout; 
-            done
-        '''
+        env.serviceName = sh(returnStdout: true, script: "echo $config.serviceName").trim()
+        env.retries = sh(returnStdout: true, script: "echo $config.retries").trim()
+        env.timeout = sh(returnStdout: true, script: "echo $config.timeout").trim()
+
+
+        env.container_id = sh(
+                returnStdout: true,
+                script: "docker ps|awk '/jobshop_test_stack_${refId}_${serviceName}/{print \$1}'"
+        ).trim()
+
+        for (int i = 0; i < ${retries}.toInteger(); i++) {
+            healthStatus = sh(
+                    returnStdout: true,
+                    script: "docker inspect --format='{{.State.Health.Status}}' ${container_id}"
+            ).trim()
+
+            if (healthStatus == "healthy") {
+                break
+            }
+
+            sleep ${timeout}.toInteger()
+        }
     }
 
     return sh (
-            script: "$containerState",
+            script: "$healthStatus",
             returnStdout: true
     ).trim()
 }
