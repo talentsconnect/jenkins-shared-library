@@ -1,7 +1,7 @@
 def call(Map config = [:]) {
 
     script {
-        env.refId = sh(returnStdout: true, script: "echo $config.refId").trim()
+        env.refId = config.refId
         env.serviceName = sh(returnStdout: true, script: "echo $config.serviceName").trim()
         env.retries = sh(returnStdout: true, script: "echo $config.retries").trim()
         env.timeout = sh(returnStdout: true, script: "echo $config.timeout").trim()
