@@ -15,7 +15,10 @@ def call(Map config = [:]) {
         sh(script: "echo ${container_id}")
         sh(script: "echo ${retries}")
 
-        for (int i = 0; i < $retries.toInteger(); i++) {
+        def retries = ${retries}
+        def timeout = ${timeout}
+
+        for (int i = 0; i < retries.toInteger(); i++) {
             sh(script: "echo loop started")
             healthStatus = sh(
                     returnStdout: true,
@@ -28,9 +31,7 @@ def call(Map config = [:]) {
                 break
             }
 
-            sh(script: "echo ${timeout}")
-
-            sleep ${timeout}.toInteger()
+            sleep timeout.toInteger()
         }
     }
 
