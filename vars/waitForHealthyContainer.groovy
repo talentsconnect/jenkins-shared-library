@@ -2,9 +2,9 @@ def call(Map config = [:]) {
 
     script {
         env.refId = config.refId
-        env.serviceName = sh(returnStdout: true, script: "echo $config.serviceName").trim()
-        env.retries = sh(returnStdout: true, script: "echo $config.retries").trim()
-        env.timeout = sh(returnStdout: true, script: "echo $config.timeout").trim()
+        env.serviceName = config.serviceName
+        env.retries = config.retries
+        env.timeout = config.timeout
 
         env.container_id = sh(
                 returnStdout: true,
@@ -17,8 +17,6 @@ def call(Map config = [:]) {
                     script: "docker inspect --format='{{.State.Health.Status}}' ${container_id}"
             ).trim()
 
-            sh(script: "echo ${healthStatus}")
-
             if (healthStatus == "healthy") {
                 break
             }
@@ -27,8 +25,5 @@ def call(Map config = [:]) {
         }
     }
 
-    return sh (
-            script: "echo $healthStatus",
-            returnStdout: true
-    ).trim()
+    return healthStatus
 }
