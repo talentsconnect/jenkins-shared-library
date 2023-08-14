@@ -19,7 +19,7 @@ def call(Map config = [:]) {
 
             sh(script: "echo ${healthStatus}")
 
-            if (healthStatus == "healthye") {
+            if (healthStatus == "healthy") {
                 break
             }
 
@@ -28,7 +28,7 @@ def call(Map config = [:]) {
     }
 
     return sh (
-            script: "$healthStatus",
+            script: "echo $healthStatus",
             returnStdout: true
     ).trim()
 }
