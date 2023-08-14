@@ -9,8 +9,8 @@ def call(Map config = [:]) {
                 script: "docker ps|awk '/jobshop_test_stack_${refId}_${serviceName}/{print \$1}'"
         ).trim()
 
-        def retries = sh(script: "echo ${retries}")
-        def timeout = sh(script: "echo ${timeout}")
+        def retries = sh(returnStdout: true, script: "echo ${retries}").trim()
+        def timeout = sh(returnStdout: true, script: "echo ${timeout}").trim()
 
         for (int i = 0; i < retries.toInteger(); i++) {
             sh(script: "echo loop started")
