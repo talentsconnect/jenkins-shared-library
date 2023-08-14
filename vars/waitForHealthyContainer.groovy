@@ -9,6 +9,8 @@ def call(Map config = [:]) {
                 script: "docker ps|awk '/jobshop_test_stack_${refId}_${serviceName}/{print \$1}'"
         ).trim()
 
+        echo "containerId is $env.container_id"
+
         for (int i = 0; i < config.retries.toInteger(); i++) {
             healthStatus = sh(
                     returnStdout: true,
