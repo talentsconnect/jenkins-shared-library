@@ -13,8 +13,10 @@ def call(Map config = [:]) {
         ).trim()
 
         sh(script: "echo ${container_id}")
+        sh(script: "echo ${retries}")
 
         for (int i = 0; i < ${retries}.toInteger(); i++) {
+            sh(script: "echo loop started")
             healthStatus = sh(
                     returnStdout: true,
                     script: "docker inspect --format='{{.State.Health.Status}}' ${container_id}"
