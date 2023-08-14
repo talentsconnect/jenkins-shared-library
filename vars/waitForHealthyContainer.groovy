@@ -4,6 +4,8 @@ def call(Map config = [:]) {
         env.refId = config.refId
         env.serviceName = config.serviceName
 
+        sleep config.timeout.toInteger()
+
         env.container_id = sh(
                 returnStdout: true,
                 script: "docker ps|awk '/jobshop_test_stack_${refId}_${serviceName}/{print \$1}'"
