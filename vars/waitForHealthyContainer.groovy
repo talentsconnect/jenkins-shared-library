@@ -12,6 +12,8 @@ def call(Map config = [:]) {
                 script: "docker ps|awk '/jobshop_test_stack_${refId}_${serviceName}/{print \$1}'"
         ).trim()
 
+        sh(script: "echo ${container_id}")
+
         for (int i = 0; i < ${retries}.toInteger(); i++) {
             healthStatus = sh(
                     returnStdout: true,
