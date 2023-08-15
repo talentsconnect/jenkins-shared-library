@@ -1,0 +1,42 @@
+@Library("shared-library") _
+pipeline {
+    agent any
+
+    parameters {
+        string defaultValue: '5711', name: 'REF_ID', trim: true, description: 'This value parameterizes the docker project name and network!'
+        string defaultValue: '3.0.0', name: 'AS_VERSION', trim: true, description: 'account-service docker tag to start up the container!'
+    }
+
+    stages {
+        stage('Nexus login') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'e0a83805-2ca3-489f-8d69-72caf181cef2', passwordVariable: 'TC_NEXUS_PWD', usernameVariable: 'TC_NEXUS_USER')]) {
+                    sh 'docker login --username ${TC_NEXUS_USER} --password ${TC_NEXUS_PWD} nexus.talentsconnect.com'
+                }
+            }
+        }
+
+        stage('Update container') {
+            steps {
+                deleteDir()
+                script {env.REF_ID = params.REF_ID}
+                script {env.AS_VERSION = params.AS_VERSION}
+                sh "docker service update --image nexus.talentsconnect.com/jobshop/account-service:${AS_VERSION} jobshop_test_stack_${REF_ID}_account-service"
+            }
+        }
+    }
+
+    post {
+        always {
+            withCredentials([usernamePassword(credentialsId: 'e0a83805-2ca3-489f-8d69-72caf181cef2', passwordVariable: 'TC_NEXUS_PWD', usernameVariable: 'TC_NEXUS_USER')]) {
+                sh label: 'Post', script: '''
+                docker logout ${NEXUS_REPOSITORY}
+              '''
+            }
+            cleanWs()
+        }
+        failure {
+            build job: 'Stop docker stack', wait: false, parameters: [string(name: 'REF_ID', value: String.valueOf(env.BUILD_ID))]
+        }
+    }
+}

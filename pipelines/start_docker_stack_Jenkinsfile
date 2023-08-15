@@ -1,0 +1,71 @@
+@Library("shared-library") _
+pipeline {
+    agent any
+
+    environment {
+        INIT_PATH = "/usr/tmp/init"
+        ASSET_PATH = "/usr/tmp/keycloak-assets"
+        REPO_ACCESS_TOKEN = "a4f98c93-cde9-4778-9854-06e366547df5"
+    }
+
+    parameters {
+        string defaultValue: '5711', name: 'REF_ID', trim: true, description: 'This value parameterizes the docker project name and network!'
+        string defaultValue: 'master', name: 'BRANCH', trim: true, description: 'This value parameterizes the repository`s branch!'
+        string defaultValue: '', name: 'REPO_URL', trim: true, description: 'This value parameterizes the repository`s url!'
+    }
+
+    stages {
+        stage('Git') {
+            steps {
+                deleteDir()
+                script {env.REF_ID = params.REF_ID}
+                script {env.BRANCH = params.BRANCH}
+                script {env.REPO_URL = params.REPO_URL}
+                git branch: "${BRANCH}", credentialsId: "${REPO_ACCESS_TOKEN}", url: "https://${REPO_URL}"
+                sh '''
+                    mkdir -p /usr/tmp/keycloak-assets
+                    mkdir -p /usr/tmp/init
+                    cp --recursive ./jenkins/keycloak-assets /usr/tmp/
+                    cp --recursive ./jenkins/init /usr/tmp/'''
+            }
+        }
+
+        stage('Create stack') {
+            steps {
+                sh "docker stack deploy --compose-file ./jenkins/docker-compose.yml jobshop_test_stack_${REF_ID}"
+            }
+        }
+
+        stage('Wait') {
+            steps {
+                script {
+                    env.sqlReady = waitForHealthyContainer(
+                            refId: "${REF_ID}",
+                            serviceName: "mysql",
+                            retries: 6,
+                            timeout: 10
+                    )
+                    env.keycloakReady = waitForHealthyContainer(
+                            refId: "${REF_ID}",
+                            serviceName: "keycloak",
+                            retries: 12,
+                            timeout: 10
+                    )
+
+                    if (env.sqlReady != "healthy" || env.keycloakReady != "healthy") {
+                        error("Required containers are not healthy!")
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            cleanWs()
+        }
+        failure {
+            build job: 'Stop docker stack', wait: false, parameters: [string(name: 'REF_ID', value: String.valueOf(env.BUILD_ID))]
+        }
+    }
+}
