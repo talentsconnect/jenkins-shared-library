@@ -6,14 +6,19 @@ def call(Map config = [:]) {
 
         sleep config.timeout.toInteger()
 
-        env.container_id = sh(
-                returnStdout: true,
-                script: "docker ps|awk '/jobshop_test_stack_${refId}_${serviceName}/{print \$1}'"
-        ).trim()
-
-        echo "containerId is $env.container_id"
-
         for (int i = 0; i < config.retries.toInteger(); i++) {
+            env.container_id = sh(
+                    returnStdout: true,
+                    script: "docker ps|awk '/jobshop_test_stack_${refId}_${serviceName}/{print \$1}'"
+            ).trim()
+
+            echo "containerId is $env.container_id"
+
+            if ($env.container_id == null) {
+                sleep config.timeout.toInteger()
+                continue;
+            }
+
             healthStatus = sh(
                     returnStdout: true,
                     script: "docker inspect --format='{{.State.Health.Status}}' ${container_id}"
