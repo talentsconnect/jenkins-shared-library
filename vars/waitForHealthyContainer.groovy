@@ -14,7 +14,7 @@ def call(Map config = [:]) {
 
             echo "containerId is $env.container_id"
 
-            if ($env.container_id == "") {
+            if (env.container_id == "") {
                 sleep config.timeout.toInteger()
                 continue;
             }
